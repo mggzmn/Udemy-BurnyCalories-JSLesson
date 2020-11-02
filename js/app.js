@@ -145,7 +145,6 @@ var AppUiController = (function() {
 
 
     var formatRemaining = function(num) {
-        //Syntax : str.substr(start,len)
         num = Math.round(num);
         num = num.toString();
         if (num.length > 3) {
@@ -183,7 +182,7 @@ var AppUiController = (function() {
             }
             editedMarkup = markup.replace('%id%', itemObj.id);
             editedMarkup = editedMarkup.replace('%description%', itemObj.description);
-            editedMarkup = editedMarkup.replace('%calories%', itemObj.calories);
+            editedMarkup = editedMarkup.replace('%calories%', formatCalories(itemObj.calories));
             document.querySelector(sliderContainer).insertAdjacentHTML('beforeend', editedMarkup);
         },
         displayFrontAppCalories: function(calObj) {
@@ -196,26 +195,27 @@ var AppUiController = (function() {
             percentage = calObj.percentage;
             var percentagePath = '<path class="circle-bg"d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/> <path class="circle circlePercentageValue"stroke-dasharray="%percentage%, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>';
             document.querySelector(htmlClassNames.frontAppRemainText).innerHTML = '<span class="remaining">Remaining</span>';
-            document.querySelector(htmlClassNames.frontAppFoodPanelCal).textContent = '+ ' + totalAdded;
-            document.querySelector(htmlClassNames.frontAppExercisePanelCal).textContent = '- ' + totalBurned;
+            
+            document.querySelector(htmlClassNames.frontAppFoodPanelCal).textContent = '+ '+ formatCalories(totalAdded);
+            document.querySelector(htmlClassNames.frontAppExercisePanelCal).textContent = '- '+ formatCalories(totalBurned);
             document.querySelector(htmlClassNames.frontAppDatePercent).textContent = percentage + '%';
 
             if (remaining > 1300) {
-                document.querySelector(htmlClassNames.frontAppResultRemainingCal).innerHTML = '<span style="color:#CBFF69;">' + remaining + '</span>';
+                document.querySelector(htmlClassNames.frontAppResultRemainingCal).innerHTML = '<span style="color:#CBFF69;">' + formatRemaining(remaining) + '</span>';
                 editedPercentagePath = percentagePath.replace('%percentage%', percentage);
                 document.querySelector(htmlClassNames.frontAppChart).innerHTML = editedPercentagePath;
             } else if (remaining < 1300 && remaining > 500) {
-                document.querySelector(htmlClassNames.frontAppResultRemainingCal).innerHTML = '<span style="color:#FF765C;">' + remaining + '</span>';
+                document.querySelector(htmlClassNames.frontAppResultRemainingCal).innerHTML = '<span style="color:#FF765C;">' + formatRemaining(remaining) + '</span>';
                 editedPercentagePath = percentagePath.replace('%percentage%', percentage);
                 document.querySelector(htmlClassNames.frontAppChart).innerHTML = editedPercentagePath;
             } else if (remaining < 500 && remaining > 0) {
                 document.querySelector(htmlClassNames.frontAppRemainText).innerHTML = '<span class="remaining" style="color:white"><i class="fa fa-exclamation-circle fa-spin fa-3x fa-fw" style="font-size:22px;"></i>Remaining</span>';
-                document.querySelector(htmlClassNames.frontAppResultRemainingCal).innerHTML = '<span style="color:#E48FFF;">' + remaining + '</span>';
+                document.querySelector(htmlClassNames.frontAppResultRemainingCal).innerHTML = '<span style="color:#E48FFF;">' + formatRemaining(remaining) + '</span>';
                 editedPercentagePath = percentagePath.replace('%percentage%', percentage);
                 document.querySelector(htmlClassNames.frontAppChart).innerHTML = editedPercentagePath;
             } else if (remaining < 0) {
                 document.querySelector(htmlClassNames.frontAppRemainText).innerHTML = '<span class="remaining" style="color:#76ff7b;"><i class="fa fa-exclamation-circle fa-spin fa-3x fa-fw" style="font-size:38px;"></i>Over The Limit</span>';
-                document.querySelector(htmlClassNames.frontAppResultRemainingCal).innerHTML = '<span style="color:#82FFCD;">' + remaining + '!!</span>';
+                document.querySelector(htmlClassNames.frontAppResultRemainingCal).innerHTML = '<span style="color:#82FFCD;">' + formatRemaining(remaining) + '!!</span>';
                 editedPercentagePath = percentagePath.replace('%percentage%', percentage);
                 document.querySelector(htmlClassNames.frontAppChart).innerHTML = editedPercentagePath;
             }
