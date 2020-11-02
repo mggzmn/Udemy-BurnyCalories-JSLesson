@@ -70,6 +70,16 @@ var caloriesController = (function() {
         },
         result: function() {
             return storage;
+        },
+        deleteCalory(id, type) {
+            var arrayIds, currentPosition;
+            arrayIds = storage.allCalories[type].map(function(current) {
+                return current.id;
+            });
+            currentPosition = arrayIds.indexOf(id);
+            if (currentPosition !== -1) {
+                storage.allCalories[type].splice(currentPosition, 1);
+            }
         }
     }
 })();
@@ -92,6 +102,7 @@ var AppUiController = (function() {
         frontAppPercentageValue: '.circlePercentageValue',
         frontAppChart: '.chart__circle',
         frontAppDatePercent: '.main-panel__date--percent',
+        mainPanel: '.main-panel',
     };
     return {
         getFormData: function() {
@@ -141,25 +152,31 @@ var AppUiController = (function() {
 
             if (remaining > 1300) {
                 document.querySelector(htmlClassNames.frontAppResultRemainingCal).innerHTML = '<span style="color:#CBFF69;">' + remaining + '</span>';
-                editedPercentagePath = percentagePath.replace('%percentage%',percentage);
+                editedPercentagePath = percentagePath.replace('%percentage%', percentage);
                 document.querySelector(htmlClassNames.frontAppChart).innerHTML = editedPercentagePath;
-            }else if(remaining < 1300 && remaining >500){
-                document.querySelector(htmlClassNames.frontAppResultRemainingCal).innerHTML = '<span style="color:#FF765C;">'+remaining+'</span>';
-                editedPercentagePath = percentagePath.replace('%percentage%',percentage);
+            } else if (remaining < 1300 && remaining > 500) {
+                document.querySelector(htmlClassNames.frontAppResultRemainingCal).innerHTML = '<span style="color:#FF765C;">' + remaining + '</span>';
+                editedPercentagePath = percentagePath.replace('%percentage%', percentage);
                 document.querySelector(htmlClassNames.frontAppChart).innerHTML = editedPercentagePath;
-            }else if( remaining < 500 && remaining > 0){
-                document.querySelector(htmlClassNames.frontAppRemainText).innerHTML = '<span class="remaining" style="color:#E48FFF;"><i class="fa fa-exclamation-circle fa-spin fa-3x fa-fw" style="font-size:22px;"></i>Remaining</span>';
-                document.querySelector(htmlClassNames.frontAppResultRemainingCal).innerHTML = '<span style="color:#E48FFF;">'+remaining+'</span>';
-                editedPercentagePath = percentagePath.replace('%percentage%',percentage);
+            } else if (remaining < 500 && remaining > 0) {
+                document.querySelector(htmlClassNames.frontAppRemainText).innerHTML = '<span class="remaining" style="color:white"><i class="fa fa-exclamation-circle fa-spin fa-3x fa-fw" style="font-size:22px;"></i>Remaining</span>';
+                document.querySelector(htmlClassNames.frontAppResultRemainingCal).innerHTML = '<span style="color:#E48FFF;">' + remaining + '</span>';
+                editedPercentagePath = percentagePath.replace('%percentage%', percentage);
+                document.querySelector(htmlClassNames.frontAppChart).innerHTML = editedPercentagePath;
+            } else if (remaining < 0) {
+                document.querySelector(htmlClassNames.frontAppRemainText).innerHTML = '<span class="remaining" style="color:#76ff7b;"><i class="fa fa-exclamation-circle fa-spin fa-3x fa-fw" style="font-size:38px;"></i>Over The Limit</span>';
+                document.querySelector(htmlClassNames.frontAppResultRemainingCal).innerHTML = '<span style="color:#82FFCD;">' + remaining + '!!</span>';
+                editedPercentagePath = percentagePath.replace('%percentage%', percentage);
                 document.querySelector(htmlClassNames.frontAppChart).innerHTML = editedPercentagePath;
             }
-            else if( remaining < 0){
-                document.querySelector(htmlClassNames.frontAppRemainText).innerHTML = '<span class="remaining" style="color:#82FFCD;"><i class="fa fa-exclamation-circle fa-spin fa-3x fa-fw" style="font-size:38px;"></i>Over The Limit</span>';
-                document.querySelector(htmlClassNames.frontAppResultRemainingCal).innerHTML = '<span style="color:#82FFCD;">'+remaining+'!!</span>';
-                editedPercentagePath = percentagePath.replace('%percentage%',percentage);
-                document.querySelector(htmlClassNames.frontAppChart).innerHTML = editedPercentagePath;
-            }
-        }
+        },
+        deleteCaloryFrontIU: function(divId) {
+            var parentPanel, actualChild;
+            parentPanel = document.getElementById(divId).parentNode;
+            console.log(parentPanel);
+            actualChild = document.getElementById(divId);
+            parentPanel.removeChild(actualChild);
+        },
     }
 })();
 
@@ -179,7 +196,28 @@ var MainController = (function(caloriesCtrl, AppUICtrl) {
                 e.preventDefault();
             }
         });
+
+        document.querySelector(htmlClassNames.mainPanel).addEventListener('click', function(e) {
+            deleteCalories(e);
+        });
     };
+
+    var deleteCalories = function(e) {
+        var parentNode, getId, id, type;
+        parentNode = e.target.parentNode.parentNode.parentNode.id;
+        if (parentNode) {
+            getId = parentNode.split('-');
+            id = parseInt(getId[1]);
+            type = getId[0];
+            //eliminas del controlador
+            caloriesCtrl.deleteCalory(id, type);
+            //actualizas la UI
+            AppUICtrl.deleteCaloryFrontIU(parentNode);
+            //actualizas el conteo de calorías
+            calculateCalories();
+        }
+    };
+
 
     var addCalories = function() {
         var getFormInput, newAddCalories;
@@ -190,7 +228,7 @@ var MainController = (function(caloriesCtrl, AppUICtrl) {
             AppUICtrl.addItem(newAddCalories, getFormInput.type);
             calculateCalories();
         }
-    }
+    };
 
     var calculateCalories = function() {
         var calories;
