@@ -21,16 +21,16 @@ var caloriesController = (function() {
     var storage = {
         allCalories: {
             add: [],
-            burn: []
+            burn: [],
         },
         all: {
             add: 0,
-            burn: 0
+            burn: 0,
         },
         totalCaloriesPerDay: 0,
         minCalPerDay: 2000,
         percentage: 0,
-        remain: 0
+        remaining: 0
     };
     //PUBLIC
     return {
@@ -56,7 +56,7 @@ var caloriesController = (function() {
             totalCalories('add');
             totalCalories('burn');
             storage.totalCaloriesPerDay = storage.all.add - storage.all.burn;
-            storage.remain = estorage.minCalPerDay - storage.totalCaloriesPerDay;
+            storage.remaining = storage.minCalPerDay - storage.totalCaloriesPerDay;
             storage.percentage = Math.round((storage.totalCaloriesPerDay / storage.minCalPerDay) * 100);
         },
         returnCalories: function() {
@@ -65,7 +65,7 @@ var caloriesController = (function() {
                 totalAdded: storage.all.add,
                 totalBurned: storage.all.burn,
                 percentage: storage.percentage,
-                remaining: storage.remain
+                remaining: storage.remaining
             }
         },
         result: function() {
@@ -84,8 +84,14 @@ var AppUiController = (function() {
         foodSliderClass: '.food__slider',
         exerciseClass: '.exercise__slider',
         foodBtn: '.btn-panel__food--apple',
-        excerciseBtn: '.btn-panel__food--fire'
-
+        excerciseBtn: '.btn-panel__food--fire',
+        frontAppResultRemainingCal: '.totalCal__remaining',
+        frontAppFoodPanelCal: '.main-panel__result--food-cal',
+        frontAppExercisePanelCal: '.main-panel__result--exercise-cal',
+        frontAppRemainText: '.remaining',
+        frontAppPercentageValue: '.circlePercentageValue',
+        frontAppChart: '.chart__circle',
+        frontAppDatePercent: '.main-panel__date--percent',
     };
     return {
         getFormData: function() {
@@ -118,6 +124,41 @@ var AppUiController = (function() {
             editedMarkup = editedMarkup.replace('%description%', itemObj.description);
             editedMarkup = editedMarkup.replace('%calories%', itemObj.calories);
             document.querySelector(sliderContainer).insertAdjacentHTML('beforeend', editedMarkup);
+        },
+        displayFrontAppCalories: function(calObj) {
+            var editedPercentagePath = '';
+            var todayCalories, totalAdded, totalBurned, remaining, percentage;
+            todayCalories = calObj.todayCalories;
+            totalAdded = calObj.totalAdded;
+            totalBurned = calObj.totalBurned;
+            remaining = calObj.remaining;
+            percentage = calObj.percentage;
+            var percentagePath = '<path class="circle-bg"d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/> <path class="circle circlePercentageValue"stroke-dasharray="%percentage%, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>';
+            document.querySelector(htmlClassNames.frontAppRemainText).innerHTML = '<span class="remaining">Remaining</span>';
+            document.querySelector(htmlClassNames.frontAppFoodPanelCal).textContent = '+ ' + totalAdded;
+            document.querySelector(htmlClassNames.frontAppExercisePanelCal).textContent = '- ' + totalBurned;
+            document.querySelector(htmlClassNames.frontAppDatePercent).textContent = percentage + '%';
+
+            if (remaining > 1300) {
+                document.querySelector(htmlClassNames.frontAppResultRemainingCal).innerHTML = '<span style="color:#CBFF69;">' + remaining + '</span>';
+                editedPercentagePath = percentagePath.replace('%percentage%',percentage);
+                document.querySelector(htmlClassNames.frontAppChart).innerHTML = editedPercentagePath;
+            }else if(remaining < 1300 && remaining >500){
+                document.querySelector(htmlClassNames.frontAppResultRemainingCal).innerHTML = '<span style="color:#FF765C;">'+remaining+'</span>';
+                editedPercentagePath = percentagePath.replace('%percentage%',percentage);
+                document.querySelector(htmlClassNames.frontAppChart).innerHTML = editedPercentagePath;
+            }else if( remaining < 500 && remaining > 0){
+                document.querySelector(htmlClassNames.frontAppRemainText).innerHTML = '<span class="remaining" style="color:#E48FFF;"><i class="fa fa-exclamation-circle fa-spin fa-3x fa-fw" style="font-size:22px;"></i>Remaining</span>';
+                document.querySelector(htmlClassNames.frontAppResultRemainingCal).innerHTML = '<span style="color:#E48FFF;">'+remaining+'</span>';
+                editedPercentagePath = percentagePath.replace('%percentage%',percentage);
+                document.querySelector(htmlClassNames.frontAppChart).innerHTML = editedPercentagePath;
+            }
+            else if( remaining < 0){
+                document.querySelector(htmlClassNames.frontAppRemainText).innerHTML = '<span class="remaining" style="color:#82FFCD;"><i class="fa fa-exclamation-circle fa-spin fa-3x fa-fw" style="font-size:38px;"></i>Over The Limit</span>';
+                document.querySelector(htmlClassNames.frontAppResultRemainingCal).innerHTML = '<span style="color:#82FFCD;">'+remaining+'!!</span>';
+                editedPercentagePath = percentagePath.replace('%percentage%',percentage);
+                document.querySelector(htmlClassNames.frontAppChart).innerHTML = editedPercentagePath;
+            }
         }
     }
 })();
@@ -155,6 +196,7 @@ var MainController = (function(caloriesCtrl, AppUICtrl) {
         var calories;
         caloriesCtrl.computedCalories();
         calories = caloriesCtrl.returnCalories();
+        AppUICtrl.displayFrontAppCalories(calories);
 
     }
     //public
