@@ -128,6 +128,32 @@ var AppUiController = (function() {
         'Fri',
         'Sat'
     ];
+
+    var formatCalories = function(num) {
+        var splitArrNum, firstInt, decimalPart, formattedNum;
+        num = Math.abs(num);
+        num = num.toFixed(2);
+        splitArrNum = num.split('.');
+        firstInt = splitArrNum[0];
+        decimalPart = splitArrNum[1];
+        if (firstInt.length > 3) {
+            firstInt = firstInt.substr(0, firstInt.length - 3) + ',' + firstInt.substr(firstInt.length - 3, 3);
+        }
+        formattedNum = firstInt + '.' + decimalPart;
+        return formattedNum;
+    };
+
+
+    var formatRemaining = function(num) {
+        //Syntax : str.substr(start,len)
+        num = Math.round(num);
+        num = num.toString();
+        if (num.length > 3) {
+            num = num.substr(0, num.length - 3) + ',' + num.substr(num.length - 3, 3);
+        }
+        return num;
+    };
+
     return {
         getFormData: function() {
             return {
@@ -211,6 +237,7 @@ var AppUiController = (function() {
             formatedText = `${dayName},${date} ${monthName} ${year}`;
             document.querySelector(htmlClassNames.frontAppDate).innerHTML = '<span>' + formatedText + '</span>';
         },
+
     }
 })();
 
@@ -275,11 +302,11 @@ var MainController = (function(caloriesCtrl, AppUICtrl) {
     return {
         initialize: function() {
             emptyCalories = {
-                todayCalories : 0,
-                totalAdded : 0,
-                totalBurned :0,
-                remaining : 2000,
-                percentage : 0,
+                todayCalories: 0,
+                totalAdded: 0,
+                totalBurned: 0,
+                remaining: 2000,
+                percentage: 0,
 
             }
             AppUICtrl.displayFrontAppCalories(emptyCalories);
