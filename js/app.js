@@ -103,7 +103,31 @@ var AppUiController = (function() {
         frontAppChart: '.chart__circle',
         frontAppDatePercent: '.main-panel__date--percent',
         mainPanel: '.main-panel',
+        frontAppDate: '.main-panel__date--text',
     };
+    var months = {
+        0: 'January',
+        1: 'February',
+        2: 'March',
+        3: 'April',
+        4: 'May',
+        5: 'June',
+        6: 'July',
+        7: 'August',
+        8: 'September',
+        9: 'October',
+        10: 'November',
+        11: 'December'
+    };
+    var days = [
+        'Sun',
+        'Mon',
+        'Tue',
+        'Wed',
+        'Thu',
+        'Fri',
+        'Sat'
+    ];
     return {
         getFormData: function() {
             return {
@@ -177,6 +201,16 @@ var AppUiController = (function() {
             actualChild = document.getElementById(divId);
             parentPanel.removeChild(actualChild);
         },
+        displayDate: function() {
+            var today, year, date, monthName, dayName, formatedText;
+            today = new Date();
+            year = today.getFullYear();
+            date = today.getDate();
+            monthName = months[today.getMonth()];
+            dayName = days[today.getDay()];
+            formatedText = `${dayName},${date} ${monthName} ${year}`;
+            document.querySelector(htmlClassNames.frontAppDate).innerHTML = '<span>' + formatedText + '</span>';
+        },
     }
 })();
 
@@ -240,7 +274,18 @@ var MainController = (function(caloriesCtrl, AppUICtrl) {
     //public
     return {
         initialize: function() {
+            emptyCalories = {
+                todayCalories : 0,
+                totalAdded : 0,
+                totalBurned :0,
+                remaining : 2000,
+                percentage : 0,
+
+            }
+            AppUICtrl.displayFrontAppCalories(emptyCalories);
             groupEventListeners();
+            AppUICtrl.displayDate();
+
         }
     }
 })(caloriesController, AppUiController);
