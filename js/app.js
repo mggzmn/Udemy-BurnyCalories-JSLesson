@@ -104,6 +104,7 @@ var AppUiController = (function() {
         frontAppDatePercent: '.main-panel__date--percent',
         mainPanel: '.main-panel',
         frontAppDate: '.main-panel__date--text',
+        errorNotification: '.error',
     };
     var months = {
         0: 'January',
@@ -153,6 +154,10 @@ var AppUiController = (function() {
         return num;
     };
 
+    var list = function(formFields) {
+        return Array.prototype.slice.call(formFields);
+    };
+
     return {
         getFormData: function() {
             return {
@@ -195,9 +200,9 @@ var AppUiController = (function() {
             percentage = calObj.percentage;
             var percentagePath = '<path class="circle-bg"d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/> <path class="circle circlePercentageValue"stroke-dasharray="%percentage%, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>';
             document.querySelector(htmlClassNames.frontAppRemainText).innerHTML = '<span class="remaining">Remaining</span>';
-            
-            document.querySelector(htmlClassNames.frontAppFoodPanelCal).textContent = '+ '+ formatCalories(totalAdded);
-            document.querySelector(htmlClassNames.frontAppExercisePanelCal).textContent = '- '+ formatCalories(totalBurned);
+
+            document.querySelector(htmlClassNames.frontAppFoodPanelCal).textContent = '+ ' + formatCalories(totalAdded);
+            document.querySelector(htmlClassNames.frontAppExercisePanelCal).textContent = '- ' + formatCalories(totalBurned);
             document.querySelector(htmlClassNames.frontAppDatePercent).textContent = percentage + '%';
 
             if (remaining > 1300) {
@@ -237,6 +242,14 @@ var AppUiController = (function() {
             formatedText = `${dayName},${date} ${monthName} ${year}`;
             document.querySelector(htmlClassNames.frontAppDate).innerHTML = '<span>' + formatedText + '</span>';
         },
+        clearForm: function() {
+            var formFields, formFieldsArr;
+            formFields = document.querySelectorAll(htmlClassNames.descriptionClass + ',' + htmlClassNames.caloriesClass + ',' + htmlClassNames.quantityClass);
+            formFieldsArr = list(formFields);
+            formFieldsArr.forEach(function(curr, index, arr) {
+                curr.value = '';
+            });
+        }
 
     }
 })();
@@ -285,9 +298,9 @@ var MainController = (function(caloriesCtrl, AppUICtrl) {
         getFormInput = AppUICtrl.getFormData();
         if (getFormInput.description !== "" && !isNaN(getFormInput.calories) && getFormInput.calories > 0 && !isNaN(getFormInput.quantity) && getFormInput.quantity > 0) {
             newAddCalories = caloriesCtrl.addCalory(getFormInput);
-            console.log(caloriesCtrl.result());
             AppUICtrl.addItem(newAddCalories, getFormInput.type);
             calculateCalories();
+            AppUICtrl.clearForm();
         }
     };
 
